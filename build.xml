@@ -1,0 +1,53 @@
+<project name="Ceylon Build Script" default="dist" basedir=".">
+
+  <!--
+    Clone:
+      git://github.com/ceylon/ceylon-common.git
+      git://github.com/ceylon/ceylon-module-resolver.git
+      git://github.com/ceylon/ceylon-spec.git
+      git://github.com/ceylon/ceylon-js.git
+
+  -->
+
+  <property name="ceylon.version" value="0.4" />
+
+  <property name="ceylon.common" value="../ceylon-common/build/dist/com/redhat/ceylon/common/${ceylon.version}/com.redhat.ceylon.common-${ceylon.version}.jar"/>
+  <property name="ceylon.module-resolver" value="../ceylon-module-resolver/build/dist/com/redhat/ceylon/module-resolver/${ceylon.version}/com.redhat.ceylon.module-resolver-${ceylon.version}.jar"/>
+  <property name="ceylon.spec" value="../ceylon-spec/build/dist/com/redhat/ceylon/typechecker/${ceylon.version}/com.redhat.ceylon.typechecker-${ceylon.version}.jar"/>
+
+  <!-- ################################################################## -->
+
+  <target name="clean">
+    <ant dir="ceylon-common" target="clean"/>
+    <ant dir="ceylon-module-resolver" target="clean">
+      <property name="ceylon.common.lib" value="${ceylon.common}" />
+    </ant>
+    <ant dir="ceylon-spec" target="clean">
+      <property name="ceylon.common.lib" value="${ceylon.common}" />
+      <property name="ceylon.module-resolver.lib" value="${ceylon.module-resolver}" />
+    </ant>
+    <ant dir="ceylon-js" target="clean">
+      <property name="ceylon.common.lib" value="${ceylon.common}" />
+      <property name="ceylon.module-resolver.lib" value="${ceylon.module-resolver}" />
+      <property name="ceylon.typechecker.lib" value="${ceylon.spec}" />
+    </ant>
+  </target>
+  
+  <target name="dist" depends="clean">
+    <ant dir="ceylon-common" target="dist"/>
+    <ant dir="ceylon-module-resolver" target="dist">
+      <property name="ceylon.common.lib" value="${ceylon.common}" />
+    </ant>
+    <ant dir="ceylon-spec" target="dist">
+      <property name="ceylon.common.lib" value="${ceylon.common}" />
+      <property name="ceylon.module-resolver.lib" value="${ceylon.module-resolver}" />
+    </ant>
+    <java dir="ceylon-js" classname="org.apache.tools.ant.launch.Launcher" fork="true" failonerror="true">
+      <classpath path="${java.class.path}"/>
+      <sysproperty key="ceylon.common.lib" value="${ceylon.common}" />
+      <sysproperty key="ceylon.module-resolver.lib" value="${ceylon.module-resolver}" />
+      <sysproperty key="ceylon.typechecker.lib" value="${ceylon.spec}" />
+      <arg value="dist"/>
+    </java>
+  </target>
+</project>
